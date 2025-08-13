@@ -1,0 +1,617 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>suicine's Lair (sanitized)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');:root{ --accent:#7a00aa; --glass: rgba(0,0,0,0.6); --glow: 0 0 6px rgba(122,0,170,0.8); --muted: #bfa3d8; --blue: #4aa3ff;
+
+/* color associations */
+--yt-gradient-start: #ff2d55; /* red */
+--yt-gradient-end: #7a00aa;   /* purple-ish */
+--imdb: #f5c542; /* yellow */
+--letterboxd: #b07a4f; /* amber/brown */
+--btn-text: #0f0310;
+
+}
+
+html,body{height:100%;margin:0;font-family:'VT323',monospace;background: radial-gradient(circle at top,#1a001a 0%, #000000 80%);color:#e0d6f5;}
+
+.stars{position:fixed; inset:0; background:transparent url('https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUydHJ3Yng0OXIxa3RrajhiZXAzOTlmcmxocHM1aThncHN3Z3dkbTMwNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xsHs2XeOMBXuU/giphy.gif') repeat; animation: moveStars 100s linear infinite; opacity:0.25; z-index:0;} @keyframes moveStars{from{background-position:0 0} to{background-position:-10000px 5000px}}
+
+.wrapper{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px; z-index:1;} .card{width:min(920px,95%); background:var(--glass); border:1px solid #550077; border-radius:12px; padding:22px; text-align:center; box-shadow:var(--glow); position:relative;} h1{font-size:40px; color:#ff66ff; margin:0 0 8px} p.lead{font-size:18px; margin:6px 0 18px; line-height:1.35}
+
+.grid{display:grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap:14px; margin-top:12px;} .tile{background:rgba(255,255,255,0.03); border:1px solid rgba(122,0,170,0.15); padding:10px; border-radius:8px; cursor:pointer; transition:transform .15s, box-shadow .15s; display:flex; flex-direction:column; align-items:center; gap:8px;} .tile:hover{transform:translateY(-6px); box-shadow:0 8px 24px rgba(0,0,0,0.5)} .tile img{width:100%; height:100px; object-fit:cover; border-radius:6px; image-rendering: auto} .tile .label{font-size:14px; color:#ffd6ff; text-align:center; padding:0 6px}
+
+.modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:1000} .modal{ width:min(760px,94%); background:#0f0310; border:1px solid #550077; padding:18px; border-radius:10px; color:#efe7ff; max-height:85vh; overflow:auto;} .modal .row{display:flex; gap:14px; align-items:flex-start} .modal img{width:180px; height:180px; object-fit:cover; border-radius:8px} .modal h2{margin:0 0 8px; color:#ff8aff} .modal p{margin:0} .close-btn{background:transparent;border:1px solid rgba(255,255,255,0.08); color:#ffd6ff; padding:6px 10px; border-radius:6px; cursor:pointer; font-family:'VT323',monospace}
+
+.modal ul{ margin-top:8px; padding-left:0; list-style:none; } .modal li{ margin:6px 0; line-height:1.3; padding:6px 8px; display:flex; justify-content:space-between; align-items:center; border-radius:6px;} .modal li .left { text-align:left; max-width:72%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:'VT323',monospace } .modal li .meta { color:var(--muted); font-size:12px; margin-left:8px;} .modal li .links { display:flex; gap:8px; align-items:center; } .modal li a, .modal li button { font-size:12px; color:#dcb3ff; text-decoration:none; border:1px solid rgba(255,255,255,0.04); padding:4px 6px; border-radius:4px; background:transparent; font-family:'VT323',monospace } .modal li.section-title{ list-style: none; font-weight:700; margin-top:14px; margin-bottom:6px; color:#ffd6ff; padding-top:6px; border-top: 1px dashed rgba(122,0,170,0.15); display:block; }
+
+/* collapsible section header / .section-header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px; border-radius:6px; cursor:pointer; background:transparent; color:#ffd6ff; border:1px solid rgba(255,255,255,0.02); } / increase toggle arrow size by ~15% to make it more visible */ .section-header .arrow { transition: transform .2s ease; margin-left:8px; color:var(--blue); font-size:1.15em; } .section-content { overflow:hidden; transition: max-height .28s cubic-bezier(.2,.8,.2,1), opacity .22s ease; opacity:1; } .section-content.closed { opacity:0; }
+
+/* rating / action button styles (colored) */ .rating-btn { font-weight:700; color:var(--btn-text); padding:4px 8px; border-radius:6px; border:0; cursor:pointer; text-decoration:none; display:inline-block; font-size:12px; font-family:'VT323',monospace } .rating-YouTube { background: linear-gradient(90deg,var(--yt-gradient-start),var(--yt-gradient-end)); } .rating-IMDb { background: var(--imdb); color:#000; } .rating-Letterboxd { background: var(--letterboxd); color:#fff; } .rating-Metacritic { background: var(--metacritic); color:#081010; }
+
+.nsfw-header { display:flex; align-items:center; gap:8px; cursor:pointer; color:#ffd6ff; padding:6px 8px; border-radius:6px;} .nsfw-icon { width:16px; height:16px; display:inline-block; image-rendering:pixelated; } .nsfw-arrow { color:var(--blue); transition:transform .17s ease; }
+
+.meta-footer { margin-top:10px; font-size:12px; color:var(--muted); text-align:left; font-family:'VT323',monospace }
+
+.visits-chip { position:fixed; right:12px; top:12px; background:rgba(0,0,0,0.6); border:1px solid rgba(122,0,170,0.2); color:#ffd6ff; padding:6px 8px; border-radius:8px; font-size:13px; z-index:2000; box-shadow:0 4px 12px rgba(0,0,0,0.4); font-family:'VT323',monospace }
+
+@media (max-width:640px){ .modal .row{flex-direction:column; align-items:center} .modal img{width:220px;height:220px} .modal li .left { max-width:60%; white-space:normal } }
+
+.footer{font-size:13px; opacity:0.8; margin-top:12px} .hint{font-size:12px; opacity:0.8; margin-top:8px}
+
+/* ----- shimmer for ★ ----- */ .starred { -webkit-background-clip: text; background-clip: text; color: transparent; background-image: linear-gradient(90deg, #d6a200 0%, #fff6bf 45%, #d6a200 100%); background-size: 200% 100%; animation: shimmer-sweep 2.6s linear infinite; } @keyframes shimmer-sweep { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+
+/* ----- heartbeat for ♥︎ ----- */ .hearted { color: #ff8b9a; animation: heartbeat 1.4s infinite; } @keyframes heartbeat { 0% { transform: scale(1); } 14% { transform: scale(1.12); } 28% { transform: scale(1); } 42% { transform: scale(1.06); } 70% { transform: scale(1); } }
+
+/* watch modal and open animation (expand-up) */ .watch-modal { position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; z-index:1200; padding-bottom:80px; } .watch-modal .box { width:min(520px,94%); background:#0f0310; border:1px solid #550077; padding:14px; border-radius:10px; color:#efe7ff; transform-origin:bottom center; transform: translateY(20px) scaleY(0.98); opacity:0; transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s ease; } .watch-modal.open .box { transform: translateY(0) scaleY(1); opacity:1; } .watch-modal ul{ list-style:none; padding:0; margin:8px 0 0 0; } .watch-modal li{ padding:8px 6px; border-bottom:1px dashed rgba(255,255,255,0.04); display:flex; justify-content:space-between; align-items:center; } .watch-modal li a{ display:inline-block; margin-left:8px; }
+
+</style>
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>  <!-- visits -->  <div class="visits-chip" id="visitsChip" aria-hidden="false">Visits: —</div>  <div class="wrapper">
+    <div class="card" role="main">
+      <h1 id="pageTitle">Welcome to suicine's Lair</h1>
+      <p class="lead" id="lead1">Hi! My name is suicine and I am a lonely teen.
+    Some people call me weird, but I accept that XD — you can't make everybody happy, that's a fact.</p>
+      <p class="lead" id="lead2">Click an icon below to open a section about songs, movies, games I like and more.</p><div class="grid" id="grid"></div>
+
+  <div class="footer">Made with 🩸 & nostalgia</div>
+</div>
+
+  </div>  <!-- Modal -->  <div class="modal-backdrop" id="backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="close-btn" id="closeBtn">Close ✕</button>
+        </div>
+      </div><div class="row">
+    <img id="modalImg" src="https://via.placeholder.com/180" alt="cover image">
+    <div style="flex:1; text-align:left">
+      <h2 id="modalTitle">Details</h2>
+      <p id="modalDesc" style="margin-top:6px"></p>
+      <div id="modalList" style="margin-top:10px"></div>
+      <div class="meta-footer" id="modalFooter"></div>
+    </div>
+  </div>
+</div>
+
+  </div>  <!-- Watch options modal -->  <div class="watch-modal" id="watchModal" aria-hidden="true">
+    <div class="box" role="dialog" aria-modal="true" id="watchBox">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong id="watchTitle">Watch options</strong>
+        <button class="close-btn" id="closeWatchBtn">Close ✕</button>
+      </div>
+      <ul id="watchOptions"></ul>
+    </div>
+  </div><script>
+/* ========== i18n + small UI strings ========== */
+const i18n = {
+  en: {
+    close: 'Close ✕',
+    details: 'Details',
+    watch: 'Assistir',
+    letterboxd: 'Letterboxd',
+    visits: 'Visits',
+    starNote: '★ = I consider this exceptional (highly recommended).\n♥︎ = Tearjerker — movies/games/songs that made me cry.'
+  },
+  pt: {
+    close: 'Fechar ✕',
+    details: 'Detalhes',
+    watch: 'Assistir',
+    letterboxd: 'Letterboxd',
+    visits: 'Visitas',
+    starNote: '★ = considerado Excepcional por mim (muito recomendado).\n♥︎ = Tearjerker — filmes/jogos/músicas que me fizeram chorar.'
+  },
+  es: {
+    close: 'Cerrar ✕',
+    details: 'Detalles',
+    watch: 'Assistir',
+    letterboxd: 'Letterboxd',
+    visits: 'Visitas',
+    starNote: '★ = considero esto excepcional (muy recomendado).\n♥︎ = Tearjerker — películas/juegos/canciones que me hicieron llorar.'
+  },
+  ru: {
+    close: 'Закрыть ✕',
+    details: 'Детали',
+    watch: 'Assistir',
+    letterboxd: 'Letterboxd',
+    visits: 'Визиты',
+    starNote: '★ = я считаю это выдающимся (очень рекомендую).\n♥︎ = Tearjerker — фильмы/игры/песни, от которых я плакал.'
+  }
+};
+
+function detectLang() {
+  const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+  const code = nav.split('-')[0].toLowerCase();
+  if (code === 'pt') return 'pt';
+  if (code === 'es') return 'es';
+  if (code === 'ru') return 'ru';
+  return 'en';
+}
+const LANG = detectLang();
+function t(key){ return (i18n[LANG] && i18n[LANG][key]) || i18n.en[key] || key; }
+
+/* apply translations to main UI */
+document.getElementById('closeBtn').textContent = t('close');
+document.getElementById('modalTitle').textContent = t('details');
+document.getElementById('visitsChip').textContent = `${t('visits')}: —`;
+
+/* translate intro paragraphs (only UI, not titles) */
+const pageTitle = document.getElementById('pageTitle');
+const lead1 = document.getElementById('lead1');
+const lead2 = document.getElementById('lead2');
+if (LANG === 'pt') {
+  pageTitle.textContent = "Welcome to suicine's Lair";
+  lead1.textContent = "Oi! Me chamo suicine e sou um adolescente solitário. Algumas pessoas me chamam de esquisito, mas eu aceito isso — não dá para agradar todo mundo.";
+  lead2.textContent = "Clique em um ícone abaixo para abrir uma seção sobre músicas, filmes, jogos que gosto e mais.";
+} else if (LANG === 'es') {
+  pageTitle.textContent = "Welcome to suicine's Lair";
+  lead1.textContent = "¡Hola! Me llamo suicine y soy un adolescente solitario. A algunas personas les parezco raro, pero lo acepto — no puedes hacer feliz a todo el mundo.";
+  lead2.textContent = "Haz clic en un icono abajo para abrir una sección sobre canciones, películas y juegos que me gustan.";
+} else if (LANG === 'ru') {
+  pageTitle.textContent = "Welcome to suicine's Lair";
+  lead1.textContent = "Привет! Меня зовут Даниэль, я одинокий подросток. Некоторым я кажусь странным, но я это принимаю — невозможно всем нравиться.";
+  lead2.textContent = "Нажмите на значок ниже, чтобы открыть раздел о песнях, фильмах и играх, которые мне нравятся.";
+}
+
+/* ========== helpers ========== */
+function escapeHtml(str){ return String(str).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]; }); }
+function searchUrl(site, q){ const s = encodeURIComponent(q); if(site === 'letterboxd') return `https://letterboxd.com/search/${s}/`; if(site === 'imdb') return `https://www.imdb.com/find?q=${s}&s=tt`; if(site === 'metacritic') return `https://www.metacritic.com/search/${s}/`; return '#'; }
+
+/* small director map for some titles (you can expand) */
+const directorMap = { "Black Christmas":"Bob Clark","Carrie":"Brian De Palma","Bunny Lake Is Missing":"Otto Preminger","Aliens☆":"James Cameron","Se7en":"David Fincher","Fallen Angels":"Wong Kar-wai","Hulk":"Ang Lee","Vanilla Sky":"Cameron Crowe","Hunger Games":"Gary Ross","The Bourne Identity":"Doug Liman","Oldboy":"Park Chan-wook","Creep":"Patrick Brice","Collateral☆":"Michael Mann","Shutter Island":"Martin Scorsese","The Secret Life of Walter Mitty♡":"Ben Stiller","The Babadook":"Jennifer Kent","Blade Runner 2049":"Denis Villeneuve","Der Hauptmann":"Robert Schwentke","Furiosa: A Mad Max Saga":"George Miller" };
+
+/* ========== data (sanitized + links provided, added missing imdb/letterboxd links) ========== */
+const data = [
+  {
+    type: "Songs",
+    image: "https://media4.giphy.com/media/v1.Y2lkPTZjMDliOTUyeTMydnFhdGs0emF1ajZlbXhlZjFscm4ybDZscHlleXVudW9lYzl3diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ku5EcFe4PNGWA/giphy.gif",
+    title: "A little bit of everything",
+    desc: "I listen mostly to Breakcore & Indie. Also enjoy some mainstream artists like Lana Del Rey, Joji and Bruno Mars (on happy days).",
+    list: [
+      "1143 — C:/18hzr/breakcore",
+      "Above — Sidewalks and Skeletons",
+      "The Reverse Hill — Akira Yamaoka",
+      "BZR — Whirling",
+      "Chocolate — Ana Frango Elétrico",
+      "Poison Tree — Grouper",
+      "All I Need — Radiohead",
+      "Palm Trees — Lowell",
+      "Decode — Paramore",
+      "Will He — Joji", 
+      "Main Theme — Wrong Organ (Mouthwashing)",
+      "Here Nor There — Tempers",
+      "I Don’t Wanna Be Me — Type O Negative",      
+      "Pretend You Love Me — Baby Bugs", 
+      "Beckoning — Adam Hurst",
+      "Clubbed to Death — Robert D (from The Matrix)",
+      "Here Nor There — Tempers",
+      "4 Morant (Better Luck Next Time) — Com Truise",
+      "Would I Lie To You? — Charles & Eddie",
+      "Who Did You Touch? — Montell Fish",
+      "Paranoia — The Marías",
+      "Tek It (Sped Up) — Cafuné",
+      "Desire — MEG MYERS",
+      "Suit & Tie — Justin Timberlake",
+      "Superêgo — Joyce",
+      "Ptolemaea — Ethel Cain",
+      "Magnetising — Marsmobil",
+      "Ecstasy — Soviet Soviet",
+      "Almost Nothing — Silent Poets (Death Stranding)",
+      "Encontros e despedidas — Maria Rita",
+      "Gilded Lily — Cults",
+      "Cosmic Boy (Astral-D Version)★☆ — The Sleepwalk",
+      "Genesis — Grimes",
+      "Wake Up in the Sky — Gucci Mane / Bruno Mars / Kodad Black",
+      "When I Get Free II — 2Pac",
+      "Good Luck, Babe!♥︎♡ — Chappell Roan",
+      "Dreiton — C418",
+      "Pretty Boy — Lennon Stella",
+      "My Space — Evelyn Evelyn",
+      "Other Ways — Trevor Hall",
+      "Methods of Dance — Japan",
+      "Cry Baby — Melanie Martinez",
+      "How Many Loves — Naomi",
+      "A Little Piece of Heaven — Avenged Sevenfold",
+      "The Truth, The Glow, The Fall★☆ — Anna Von Hausswolff"
+    ]
+  },
+  {
+    type: "Movies",
+    image: "https://media0.giphy.com/media/v1.Y2lkPTZjMDliOTUydXB3a3N2eXdtNHhlMzhrNHY3cTRiYXpyZW4yYXNtMG02MzVobXA3bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wq9OL6EwSeJCetv6Zi/giphy.gif",
+    title: "Do we have one in common?",
+    desc: "If you feel watching something different tonight.",
+    list: [
+  { title: "Black Christmas", year: 1974, imdb: "https://www.imdb.com/title/tt0071222/", letterboxd: "https://letterboxd.com/film/black-christmas/" },
+  { title: "Carrie", year: 1976, imdb: "https://www.imdb.com/title/tt0074285/", letterboxd: "https://letterboxd.com/film/carrie-1976/" },
+  { title: "Bunny Lake Is Missing", year: 1965, imdb: "https://www.imdb.com/title/tt0058997/", letterboxd: "https://letterboxd.com/film/bunny-lake-is-missing/" },
+  { title: "Aliens★☆", year: 1986, imdb: "https://www.imdb.com/title/tt0090605/", letterboxd: "https://letterboxd.com/film/aliens/" },
+  { title: "Se7en", year: 1995, imdb: "https://www.imdb.com/title/tt0114369/", letterboxd: "https://letterboxd.com/film/se7en/" },
+  { title: "Fallen Angels", year: 1995, imdb: "https://www.imdb.com/title/tt0112913/", letterboxd: "https://letterboxd.com/film/fallen-angels/" },
+  "[Post-2000]",
+  { title: "Hulk", year: 2003, imdb: "https://www.imdb.com/title/tt0286716/", letterboxd: "https://letterboxd.com/film/hulk/" },
+  { title: "Vanilla Sky", year: 2001, imdb: "https://www.imdb.com/title/tt0259711/", letterboxd: "https://letterboxd.com/film/vanilla-sky/" },
+  { title: "The Hunger Games", year: 2012, imdb: "https://www.imdb.com/title/tt1392170/", letterboxd: "https://letterboxd.com/film/the-hunger-games/" },
+  { title: "The Bourne Identity", year: 2002, imdb: "https://www.imdb.com/title/tt0258463/", letterboxd: "https://letterboxd.com/film/the-bourne-identity-2002/" },
+  { title: "Oldboy", year: 2003, imdb: "https://www.imdb.com/title/tt0364569/", letterboxd: "https://letterboxd.com/film/oldboy/" },
+  { title: "Creep", year: 2014, imdb: "https://www.imdb.com/title/tt2908446/", letterboxd: "https://letterboxd.com/film/creep-2014/" },
+  { title: "Collateral★☆", year: 2004, imdb: "https://www.imdb.com/title/tt0369339/", letterboxd: "https://letterboxd.com/film/collateral/" },
+  { title: "Shutter Island", year: 2010, imdb: "https://www.imdb.com/title/tt1130884/", letterboxd: "https://letterboxd.com/film/shutter-island/" },
+  { title: "The Secret Life of Walter Mitty♥♡︎", year: 2013, imdb: "https://www.imdb.com/title/tt0359950/", letterboxd: "https://letterboxd.com/film/the-secret-life-of-walter-mitty-2013/" },
+  { title: "The Babadook", year: 2014, imdb: "https://www.imdb.com/title/tt2321549/", letterboxd: "https://letterboxd.com/film/the-babadook/" },
+  { title: "Blade Runner 2049", year: 2017, imdb: "https://www.imdb.com/title/tt1856101/", letterboxd: "https://letterboxd.com/film/blade-runner-2049/" },
+  { title: "Der Hauptmann", year: 2017, imdb: "https://www.imdb.com/title/tt6763252/", letterboxd: "https://letterboxd.com/film/the-captain-2017/" },
+  { title: "Furiosa: A Mad Max Saga", year: 2024, imdb: "https://www.imdb.com/title/tt12037194/", letterboxd: "https://letterboxd.com/film/furiosa-a-mad-max-sSaga/" },
+  { title: "We Need to Talk About Kevin", year: 2011, imdb: "https://www.imdb.com/title/tt1242460/", letterboxd: "https://letterboxd.com/film/we-need-to-talk-about-kevin/" },
+      "[Series]",
+      { title: 'Interface', year:2022, imdb: 'https://m.imdb.com/title/tt9335794/', watch: [ { label: 'YouTube (playlist)', url: 'https://youtube.com/playlist?list=PLPnjato8iGXLQbppBPhOny8XLSRl7S5pM&si=vDqVS2S2IlM5H0j5' }, { label: 'Archive.org', url: 'https://archive.org/details/interface-archive' } ] },
+      { title: 'Ripley', year:2022, imdb: 'https://m.imdb.com/title/tt11016042/', letterboxd: 'https://letterboxd.com/film/ripley/' },
+      { title: 'Breaking Bad', year:2008, imdb: 'https://m.imdb.com/title/tt0903747/' },
+      { title: 'Better Call Saul', year:2015, imdb: 'https://m.imdb.com/title/tt3032476/' },
+      { title: 'The Oldest View', year:2023, imdb: 'https://m.imdb.com/title/tt28196306/', watch: [ { label: 'YouTube (playlist)', url: 'https://youtube.com/playlist?list=PLVAh-MgDVqvAwoFF5hJmtRrx86Yw-pdN1' } ] },
+      { title: 'Dark', year:2017, imdb: 'https://m.imdb.com/title/tt5753856/' },
+      "[Shorts]",
+      { title: 'The Real Thing', year:2017, imdb: 'https://m.imdb.com/title/tt6683760/', letterboxd: 'https://letterboxd.com/film/the-real-thing-2017-1/', watch: [ { label: 'Vimeo', url: 'https://vimeo.com/223044638' } ] },
+      { title: 'Pleasant Inn', year:2019, imdb: 'https://m.imdb.com/title/tt32563180/', letterboxd: 'https://letterboxd.com/film/pleasant-inn/', watch: [ { label: 'YouTube', url: 'https://youtu.be/jv4uiR3Aew8?si=k-Rq4mCYljACAPAT' } ] },
+      { title: "Who's Hungry", year:2009, imdb: 'https://m.imdb.com/title/tt7245360/', letterboxd: 'https://letterboxd.com/film/whos-hungry/', watch: [ { label: 'YouTube', url: 'https://youtu.be/8srEvrF90-s' } ] },
+      { title: 'Missing Halloween', year:2015, imdb: 'https://m.imdb.com/title/tt6641940/', letterboxd: 'https://letterboxd.com/film/missing-halloween/', watch: [ { label: 'YouTube', url: 'https://youtu.be/FaoVpVXcZsA' } ] },
+      { title: 'Pinched', year:2010, imdb: 'https://imdb.com/title/tt1656716/', letterboxd: 'https://letterboxd.com/film/pinched/', watch: [ { label: 'YouTube', url: 'https://youtu.be/oWlhMekUZRs' } ] },
+      { title: 'Cat City', year:2017, imdb: 'https://imdb.com/title/tt10202186/', letterboxd: 'https://letterboxd.com/film/cat-city-2017/', watch: [ { label: 'YouTube', url: 'https://youtu.be/NWeyUpqnKuk' }, { label: 'GirlsInFilm (no ads)', url: 'https://www.girlsinfilm.net/videos/cat-city' } ] }
+    ]
+  },
+  {
+    type: "Games",
+    image: "https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUybWNuaG01YmJpem9rYng4N3F1cDFoNmhqenRrNHptNHh5cWxzeHp1aCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/chK1YI9YVXahhTFJUT/giphy.gif",
+    title: "It's healthy!",
+    desc: "Some games I've finished or I'm playing.",
+    list: [
+      "[Playing]",
+      "Watch Dogs (2014)★",
+      "Death Stranding (2019)",
+      "Star Wars: Fallen Order (2019)",
+      "[Finished]",
+      "Batman Arkham City GOTY (2011)",
+      "Silent Hill 2 (2001)★",
+      "Lego Star Wars III: The Clone Wars (2011)",
+      "Mouthwashing (2024)",
+      "[RPG]",
+      "Pokémon (X, Alpha Sapphire, HeartGold, Black 2, Fire Red, Unbound)",
+      "[With Friends/LAN]",
+      "Minecraft: Java Edition (2011)",
+      "FNAF Doom (2014)"
+    ]
+  }
+];
+
+/* ========== render grid ========== */
+const grid = document.getElementById('grid');
+data.forEach((item, idx) => {
+  const tile = document.createElement('button');
+  tile.className = 'tile';
+  tile.setAttribute('aria-haspopup','dialog');
+  tile.innerHTML = `
+    <img src="${escapeHtml(item.image || '')}" alt="${escapeHtml(item.title)} cover" />
+    <div class="label"><strong>${escapeHtml(item.type)}</strong><div style="font-size:12px;opacity:0.9">${escapeHtml(item.title)}</div></div>
+  `;
+  tile.addEventListener('click', () => openModal(idx));
+  grid.appendChild(tile);
+});
+
+/* ========== modal logic ========== */
+const backdrop = document.getElementById('backdrop');
+const modalImg = document.getElementById('modalImg');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const modalList = document.getElementById('modalList');
+const modalFooter = document.getElementById('modalFooter');
+const closeBtn = document.getElementById('closeBtn');
+
+function openModal(index) {
+  const item = data[index];
+  modalImg.src = item.image || 'https://via.placeholder.com/180';
+  modalImg.alt = (item.title ? item.title + ' cover' : 'cover image');
+  modalTitle.textContent = item.title || t('details');
+  modalDesc.textContent = item.desc || '';
+  modalList.innerHTML = '';
+  // Exibir starNote para todas as categorias
+  modalFooter.textContent = t('starNote');
+
+  if(item.list && item.list.length){
+    const ul = document.createElement('ul');
+
+    // iterate and group by [Section]
+    let i = 0;
+    while(i < item.list.length){
+      const raw = item.list[i];
+      const rawStr = (typeof raw === 'string') ? raw.trim() : null;
+      if(rawStr && rawStr.startsWith('[') && rawStr.endsWith(']')){
+        const head = rawStr.slice(1,-1).trim();
+        // create collapsible header
+        const headerLi = document.createElement('li');
+        headerLi.className = 'section-title';
+        // build header container (clickable)
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'section-header';
+        headerDiv.innerHTML = `<strong>${escapeHtml(head)}</strong><span class="arrow">▾</span>`;
+        headerLi.appendChild(headerDiv);
+        ul.appendChild(headerLi);
+
+        // create content container to hold subsequent items until next section
+        const contentContainerLi = document.createElement('li');
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'section-content';
+        // will hold a list of items
+        const innerUl = document.createElement('ul');
+        innerUl.style.listStyle = 'none';
+        innerUl.style.paddingLeft = '6px';
+        innerUl.style.margin = '6px 0 0 0';
+
+        let j = i + 1;
+        while(j < item.list.length){
+          const nxt = item.list[j];
+          const nxtStr = (typeof nxt === 'string') ? nxt.trim() : null;
+          if(nxtStr && nxtStr.startsWith('[') && nxtStr.endsWith(']')) break;
+          innerUl.appendChild(createListItem(nxt, item.type));
+          j++;
+        }
+        contentDiv.appendChild(innerUl);
+        contentContainerLi.appendChild(contentDiv);
+        ul.appendChild(contentContainerLi);
+
+        // Default state: closed for certain sections in Movies (post-2000/post-2020/series/shorts) and nsfw
+        const headLower = head.toLowerCase();
+        const closedByDefault = (item.type === 'Movies', 'Games') && (['with friends','post-2000','post-2020','series','shorts'].includes(headLower));
+        if(closedByDefault){
+          closeSection(contentDiv, headerDiv.querySelector('.arrow'));
+        } else {
+          openSection(contentDiv, headerDiv.querySelector('.arrow'));
+        }
+
+        // click toggles
+        headerDiv.addEventListener('click', () => {
+          if(contentDiv.classList.contains('closed')) openSection(contentDiv, headerDiv.querySelector('.arrow'));
+          else closeSection(contentDiv, headerDiv.querySelector('.arrow'));
+        });
+
+        i = j;
+      } else {
+        // plain item outside sections
+        ul.appendChild(createListItem(raw, item.type));
+        i++;
+      }
+    }
+
+    modalList.appendChild(ul);
+  }
+
+  backdrop.style.display='flex';
+  backdrop.setAttribute('aria-hidden','false');
+  closeBtn.focus();
+}
+
+/* helper to smoothly open/close sections using maxHeight */
+function openSection(contentDiv, arrowEl){
+  contentDiv.classList.remove('closed');
+  requestAnimationFrame(()=>{
+    contentDiv.style.maxHeight = contentDiv.scrollHeight + 'px';
+    contentDiv.style.opacity = '1';
+    if(arrowEl) arrowEl.style.transform = 'rotate(180deg)';
+  });
+}
+function closeSection(contentDiv, arrowEl){
+  contentDiv.style.maxHeight = contentDiv.scrollHeight + 'px';
+  requestAnimationFrame(()=>{
+    contentDiv.style.maxHeight = '0px';
+    contentDiv.style.opacity = '0';
+    contentDiv.classList.add('closed');
+    if(arrowEl) arrowEl.style.transform = 'rotate(0deg)';
+  });
+}
+
+/* createListItem builds the <li> with links and meta; sanitized and updated */
+function createListItem(entry, sectionType) {
+  const li = document.createElement('li');
+  const left = document.createElement('div');
+  left.className = 'left';
+  const links = document.createElement('div');
+  links.className = 'links';
+
+  // Suporte para entrada como objeto (usado principalmente em Movies)
+  if (entry && typeof entry === 'object' && entry.title) {
+    const titleText = entry.title + (entry.year ? ` (${entry.year})` : '');
+    left.innerHTML = buildLeftHtmlWithMarkers(entry.title, entry.year, sectionType);
+
+    // IMDb
+    if (entry.imdb) {
+      const im = document.createElement('a');
+      im.href = entry.imdb;
+      im.target = '_blank';
+      im.rel = 'noopener noreferrer';
+      im.textContent = 'IMDb';
+      im.className = 'rating-btn rating-IMDb';
+      links.appendChild(im);
+    } else {
+      const im = document.createElement('a');
+      im.href = searchUrl('imdb', titleText);
+      im.target = '_blank';
+      im.rel = 'noopener noreferrer';
+      im.textContent = 'IMDb';
+      im.className = 'rating-btn rating-IMDb';
+      links.appendChild(im);
+    }
+
+    // Letterboxd
+    if (entry.letterboxd) {
+      const lb = document.createElement('a');
+      lb.href = entry.letterboxd;
+      lb.target = '_blank';
+      lb.rel = 'noopener noreferrer';
+      lb.textContent = t('letterboxd');
+      lb.className = 'rating-btn rating-Letterboxd';
+      links.appendChild(lb);
+    } else if (sectionType === 'Movies') {
+      const lb = document.createElement('a');
+      lb.href = searchUrl('letterboxd', titleText);
+      lb.target = '_blank';
+      lb.rel = 'noopener noreferrer';
+      lb.textContent = t('letterboxd');
+      lb.className = 'rating-btn rating-Letterboxd';
+      links.appendChild(lb);
+    }
+
+    // Watch options
+    if (entry.watch && Array.isArray(entry.watch) && entry.watch.length) {
+      const w = document.createElement('button');
+      w.type = 'button';
+      w.textContent = t('watch');
+      w.className = 'rating-btn rating-YouTube';
+      w.addEventListener('click', () => showWatchOptions(entry.title, entry.watch));
+      links.appendChild(w);
+    }
+
+    li.appendChild(left);
+    li.appendChild(links);
+    return li;
+  }
+
+  // Suporte para entrada como string (usado em Songs e Games)
+  const str = (typeof entry === 'string') ? entry.trim() : String(entry);
+  const markers = detectMarkers(str);
+  const cleaned = str.replace(/[★♥︎♥]/g, '').trim();
+
+  // Tentar parsear título e ano no formato "Title (YYYY)"
+  const yearMatch = cleaned.match(/^(.+?)\s*\((\d{4})\)\s*$/);
+  if (yearMatch) {
+    const title = yearMatch[1].trim();
+    const year = yearMatch[2];
+    left.innerHTML = buildLeftHtmlWithMarkers(title + (markers.star ? '★' : '') + (markers.heart ? '♥︎' : ''), year, sectionType);
+
+    if (sectionType === 'Movies') {
+      const im = document.createElement('a');
+      im.href = searchUrl('imdb', `${title} ${year}`);
+      im.target = '_blank';
+      im.rel = 'noopener noreferrer';
+      im.textContent = 'IMDb';
+      im.className = 'rating-btn rating-IMDb';
+      links.appendChild(im);
+
+      const lb = document.createElement('a');
+      lb.href = searchUrl('letterboxd', `${title} ${year}`);
+      lb.target = '_blank';
+      lb.rel = 'noopener noreferrer';
+      lb.textContent = t('letterboxd');
+      lb.className = 'rating-btn rating-Letterboxd';
+      links.appendChild(lb);
+    }
+
+    if (sectionType === 'Games') {
+      const mcLink = document.createElement('a');
+      mcLink.href = searchUrl('metacritic', title);
+      mcLink.target = '_blank';
+      mcLink.rel = 'noopener noreferrer';
+      mcLink.textContent = 'Metacritic';
+      mcLink.className = 'rating-btn rating-Metacritic';
+      links.appendChild(mcLink);
+    }
+
+    li.appendChild(left);
+    li.appendChild(links);
+    return li;
+  }
+
+  // Fallback para strings sem ano, como em Songs ("Title — Artist")
+  const parts = cleaned.split('—').map(s => s.trim());
+  let titleHtml = `<strong>${escapeHtml(parts[0])}</strong>`;
+  if (markers.star) titleHtml = `<strong class="starred">${escapeHtml(parts[0])}</strong>`;
+  if (markers.heart) titleHtml = `<strong class="hearted">${escapeHtml(parts[0])}</strong>`;
+  if (markers.star && markers.heart) titleHtml = `<strong class="starred hearted">${escapeHtml(parts[0])}</strong>`;
+  
+  if (parts.length >= 2) {
+    titleHtml += ` <span class="meta">— ${escapeHtml(parts.slice(1).join(' — '))}</span>`;
+  }
+  
+  left.innerHTML = titleHtml;
+  li.appendChild(left);
+  li.appendChild(links);
+  return li;
+}
+
+function buildLeftHtmlWithMarkers(title, year, sectionType) {
+  // Detecta marcadores no texto original (★ e ♥︎)
+  const hasStar = /★/.test(title) || /\u2605/.test(title);
+  const hasHeart = /♥|\u2665/.test(title) || /♥︎/.test(title);
+  // Remove marcadores do título visível
+  const cleanTitle = title.replace(/[★♥︎♥\u2605\u2665]/g, '').trim();
+  let classes = '';
+  if (hasStar) classes += 'starred ';
+  if (hasHeart) classes += 'hearted ';
+  let html = `<strong class="${classes.trim()}">${escapeHtml(cleanTitle)}</strong>`;
+  if (year) html += ` <span class="meta">(${escapeHtml(String(year))})</span>`;
+  if (sectionType === 'Movies' && directorMap[cleanTitle]) html += ` <span class="meta">— dir. ${escapeHtml(directorMap[cleanTitle])}</span>`;
+  return html;
+}
+
+function detectMarkers(str){
+  return { star: /★/.test(str), heart: /♥|\u2665|♥︎/.test(str) };
+}
+
+/* ===== Watch options modal handling (Assistir button opens this) ===== */
+const watchModal = document.getElementById('watchModal');
+const watchOptions = document.getElementById('watchOptions');
+const watchTitle = document.getElementById('watchTitle');
+const closeWatchBtn = document.getElementById('closeWatchBtn');
+closeWatchBtn.addEventListener('click', closeWatchModal);
+watchModal.addEventListener('click', (e)=>{ if(e.target===watchModal) closeWatchModal(); });
+function showWatchOptions(title, options){
+  watchTitle.textContent = `Watch: ${title}`;
+  watchOptions.innerHTML = '';
+  options.forEach((opt, idx)=>{
+    const li = document.createElement('li');
+    const lbl = document.createElement('span'); lbl.textContent = `${opt.label}`;
+    const a = document.createElement('a'); a.href = opt.url; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent = 'Click to open'; a.className='rating-btn rating-YouTube';
+    li.appendChild(lbl); li.appendChild(a);
+    watchOptions.appendChild(li);
+  });
+  watchModal.style.display = 'flex';
+  watchModal.setAttribute('aria-hidden','false');
+  // trigger open animation
+  requestAnimationFrame(()=> watchModal.classList.add('open'));
+}
+function closeWatchModal(){ watchModal.classList.remove('open'); setTimeout(()=>{ watchModal.style.display='none'; watchModal.setAttribute('aria-hidden','true'); }, 220); }
+
+/* modal close */
+function closeModal(){ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); }
+backdrop.addEventListener('click', (e)=> { if(e.target === backdrop) closeModal(); });
+closeBtn.addEventListener('click', closeModal);
+document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') { if(watchModal.classList.contains('open')) closeWatchModal(); else closeModal(); } });
+
+/* ========== visits counter (CountAPI fallback local) ========== */
+const visitsChip = document.getElementById('visitsChip');
+async function updateVisits(){
+  const ns = 'suicines_lair';
+  const name = 'visits';
+  try {
+    const res = await fetch(`https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(name)}`);
+    if(!res.ok) throw new Error('countapi fail');
+    const json = await res.json();
+    visitsChip.textContent = `${t('visits')}: ${json.value}`;
+  } catch(err){
+    try {
+      const key = 'visits_local_v1';
+      let v = parseInt(localStorage.getItem(key) || '0',10);
+      v = isNaN(v) ? 1 : v+1;
+      localStorage.setItem(key, String(v));
+      visitsChip.textContent = `${t('visits')}: ${v} (local)`;
+    } catch(e){
+      visitsChip.textContent = `${t('visits')}: —`;
+    }
+  }
+}
+updateVisits();
+
+</script></body>
+</html>
