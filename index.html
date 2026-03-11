@@ -365,7 +365,7 @@ function openModal(index) {
 
         // Default state: closed for certain sections
         const headLower = head.toLowerCase();
-        const closedByDefault = (item.type === 'Movies', 'Games') && (['rpg','with friends/lan','post-2000','series','shorts'].includes(headLower));
+        const closedByDefault = (item.type === 'Movies' || item.type === 'Games') && (['rpg','with friends/lan','post-2000','series','shorts'].includes(headLower));
         if(closedByDefault){
           closeSection(contentDiv, headerDiv.querySelector('.arrow'));
         } else {
@@ -590,26 +590,17 @@ backdrop.addEventListener('click', (e)=> { if(e.target === backdrop) closeModal(
 closeBtn.addEventListener('click', closeModal);
 document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') { if(watchModal.classList.contains('open')) closeWatchModal(); else closeModal(); } });
 
-/* ========== visits counter (CountAPI fallback local) ========== */
+/* ========== visits counter (local) ========== */
 const visitsChip = document.getElementById('visitsChip');
-async function updateVisits(){
-  const ns = 'suicines_lair';
-  const name = 'visits';
+function updateVisits(){
   try {
-    const res = await fetch(`https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(name)}`);
-    if(!res.ok) throw new Error('countapi fail');
-    const json = await res.json();
-    visitsChip.textContent = `${t('visits')}: ${json.value}`;
-  } catch(err){
-    try {
-      const key = 'visits_local_v1';
-      let v = parseInt(localStorage.getItem(key) || '0',10);
-      v = isNaN(v) ? 1 : v+1;
-      localStorage.setItem(key, String(v));
-      visitsChip.textContent = `${t('visits')}: ${v} (local)`;
-    } catch(e){
-      visitsChip.textContent = `${t('visits')}: —`;
-    }
+    const key = 'visits_local_v1';
+    let v = parseInt(localStorage.getItem(key) || '0', 10);
+    v = isNaN(v) ? 1 : v + 1;
+    localStorage.setItem(key, String(v));
+    visitsChip.textContent = `${t('visits')}: ${v}`;
+  } catch(e){
+    visitsChip.textContent = `${t('visits')}: —`;
   }
 }
 updateVisits();
