@@ -86,7 +86,9 @@ html,body{height:100%;margin:0;font-family:'VT323',monospace;background: radial-
       </div>
       <ul id="watchOptions"></ul>
     </div>
-  </div><script>
+  </div><script type="module">
+import { escapeHtml, searchUrl, detectMarkers, cleanMarkers } from './utils.js';
+
 /* ========== i18n + small UI strings ========== */
 const i18n = {
   en: {
@@ -157,9 +159,6 @@ if (LANG === 'pt') {
   lead2.textContent = "Нажмите на значок ниже, чтобы открыть раздел о песнях, фильмах и играх, которые мне нравятся.";
 }
 
-/* ========== helpers ========== */
-function escapeHtml(str){ return String(str).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]; }); }
-function searchUrl(site, q){ const s = encodeURIComponent(q); if(site === 'letterboxd') return `https://letterboxd.com/search/${s}/`; if(site === 'imdb') return `https://www.imdb.com/find?q=${s}&s=tt`; if(site === 'metacritic') return `https://www.metacritic.com/search/${s}/`; return '#'; }
 
 /* small director map for some titles (you can expand) */
 const directorMap = { "Black Christmas":"Bob Clark","Carrie":"Brian De Palma","Bunny Lake Is Missing":"Otto Preminger","Aliens☆":"James Cameron","Se7en":"David Fincher","Fallen Angels":"Wong Kar-wai","Hulk":"Ang Lee","Vanilla Sky":"Cameron Crowe","Hunger Games":"Gary Ross","The Bourne Identity":"Doug Liman","Oldboy":"Park Chan-wook","Creep":"Patrick Brice","Collateral☆":"Michael Mann","Shutter Island":"Martin Scorsese","The Secret Life of Walter Mitty♡":"Ben Stiller","The Babadook":"Jennifer Kent","Blade Runner 2049":"Denis Villeneuve","Der Hauptmann":"Robert Schwentke","Furiosa: A Mad Max Saga":"George Miller" };
@@ -482,7 +481,7 @@ function createListItem(entry, sectionType) {
   // Suporte para entrada como string (usado em Songs e Games)
   const str = (typeof entry === 'string') ? entry.trim() : String(entry);
   const markers = detectMarkers(str);
-  const cleaned = str.replace(/[★♥︎♥]/g, '').trim();
+  const cleaned = cleanMarkers(str);
 
   // Tentar parsear título e ano no formato "Title (YYYY)"
   const yearMatch = cleaned.match(/^(.+?)\s*\((\d{4})\)\s*$/);
@@ -542,22 +541,15 @@ function createListItem(entry, sectionType) {
 }
 
 function buildLeftHtmlWithMarkers(title, year, sectionType) {
-  // Detecta marcadores no texto original (★ e ♥︎)
-  const hasStar = /★/.test(title) || /\u2605/.test(title);
-  const hasHeart = /♥|\u2665/.test(title) || /♥︎/.test(title);
-  // Remove marcadores do título visível
-  const cleanTitle = title.replace(/[★♥︎♥\u2605\u2665]/g, '').trim();
+  const markers = detectMarkers(title);
+  const cleanTitle = cleanMarkers(title);
   let classes = '';
-  if (hasStar) classes += 'starred ';
-  if (hasHeart) classes += 'hearted ';
+  if (markers.star) classes += 'starred ';
+  if (markers.heart) classes += 'hearted ';
   let html = `<strong class="${classes.trim()}">${escapeHtml(cleanTitle)}</strong>`;
   if (year) html += ` <span class="meta">(${escapeHtml(String(year))})</span>`;
   if (sectionType === 'Movies' && directorMap[cleanTitle]) html += ` <span class="meta">— dir. ${escapeHtml(directorMap[cleanTitle])}</span>`;
   return html;
-}
-
-function detectMarkers(str){
-  return { star: /★/.test(str), heart: /♥|\u2665|♥︎/.test(str) };
 }
 
 /* ===== Watch options modal handling (Assistir button opens this) ===== */
