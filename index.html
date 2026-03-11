@@ -570,13 +570,15 @@ watchModal.addEventListener('click', (e)=>{ if(e.target===watchModal) closeWatch
 function showWatchOptions(title, options){
   watchTitle.textContent = `Watch: ${title}`;
   watchOptions.innerHTML = '';
+  const fragment = document.createDocumentFragment();
   options.forEach((opt, idx)=>{
     const li = document.createElement('li');
     const lbl = document.createElement('span'); lbl.textContent = `${opt.label}`;
     const a = document.createElement('a'); a.href = opt.url; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent = 'Click to open'; a.className='rating-btn rating-YouTube';
     li.appendChild(lbl); li.appendChild(a);
-    watchOptions.appendChild(li);
+    fragment.appendChild(li);
   });
+  watchOptions.appendChild(fragment);
   watchModal.style.display = 'flex';
   watchModal.setAttribute('aria-hidden','false');
   // trigger open animation
