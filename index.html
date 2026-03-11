@@ -592,24 +592,15 @@ document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') { if(watchMo
 
 /* ========== visits counter (CountAPI fallback local) ========== */
 const visitsChip = document.getElementById('visitsChip');
-async function updateVisits(){
-  const ns = 'suicines_lair';
-  const name = 'visits';
+function updateVisits(){
   try {
-    const res = await fetch(`https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(name)}`);
-    if(!res.ok) throw new Error('countapi fail');
-    const json = await res.json();
-    visitsChip.textContent = `${t('visits')}: ${json.value}`;
-  } catch(err){
-    try {
-      const key = 'visits_local_v1';
-      let v = parseInt(localStorage.getItem(key) || '0',10);
-      v = isNaN(v) ? 1 : v+1;
-      localStorage.setItem(key, String(v));
-      visitsChip.textContent = `${t('visits')}: ${v} (local)`;
-    } catch(e){
-      visitsChip.textContent = `${t('visits')}: —`;
-    }
+    const key = 'visits_local_v1';
+    let v = parseInt(localStorage.getItem(key) || '0',10);
+    v = isNaN(v) ? 1 : v+1;
+    localStorage.setItem(key, String(v));
+    visitsChip.textContent = `${t('visits')}: ${v}`;
+  } catch(e){
+    visitsChip.textContent = `${t('visits')}: —`;
   }
 }
 updateVisits();
